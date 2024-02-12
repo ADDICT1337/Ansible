@@ -1,0 +1,31 @@
+- hosts: appservers
+  remote_user: admin
+  vars: 
+    item: "git"
+
+  tasks:
+    - name: Update package manager cache
+      apt:
+        update_cache: yes
+      tags: update_cache
+
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - make
+        - nodejs
+      tags: install_packages
+
+    - name: Create users
+      user:
+        name: "{{ item.name }}"
+        password: "{{ item.password | password_hash('sha512') }}"
+        state: present
+      with_items:
+        - { name: "arya", password: "secure_password_for_arya" }
+        - { name: "sansa", password: "secure_password_for_sansa" }
+        - { name: "tirion", password: "secure_password_for_tirion" }
+      tags: create_users
